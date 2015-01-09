@@ -8,17 +8,14 @@ var xmlutils = require('./xmlutils');
 var ndkprojutils = require('./ndkprojutils');
 var amxmlutils = require('./amxmlutils');
 
-// callback(err, xmlobj)
-function loadProjXML(projpath, callback) {
+function loadProjXML(projpath) {
     var filename = path.join(projpath, '.project');
-    xmlutils.loadxml(filename, callback);
+    return xmlutils.loadxmlSync(filename);
 }
 
-// callback(err)
-function saveProjXML(projpath, xmlobj, callback) {
+function saveProjXML(projpath, xmlobj) {
     var filename = path.join(projpath, '.project');
-
-    xmlutils.save2xml(filename, xmlobj, callback);
+    xmlutils.save2xmlSync(filename, xmlobj);
 }
 
 function chgProjName(xmlobj, newname) {
@@ -83,17 +80,15 @@ function removeProject(xmlobj, projname) {
     }
 }
 
-// callback(err, xmlobj)
-function loadClassPathXML(projpath, callback) {
+function loadClassPathXML(projpath) {
     var filename = path.join(projpath, '.classpath');
-    xmlutils.loadxml(filename, callback);
+    return xmlutils.loadxmlSync(filename);
 }
 
-// callback(err)
-function saveClassPathXML(projpath, xmlobj, callback) {
+function saveClassPathXML(projpath, xmlobj) {
     var filename = path.join(projpath, '.classpath');
 
-    xmlutils.save2xml(filename, xmlobj, callback);
+    xmlutils.save2xmlSync(filename, xmlobj);
 }
 
 function findClassPath(xmlobj, curpath) {

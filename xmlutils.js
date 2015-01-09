@@ -114,7 +114,7 @@ function save2xmlSync(filename, xmlobj) {
 }
 
 // callback(err, xmlobj)
-function loadxmlSync(filename, callback) {
+function loadxmlSync(filename) {
     var data = fs.readFileSync(filename);
     return new DOMParser().parseFromString(data.toString());
 }

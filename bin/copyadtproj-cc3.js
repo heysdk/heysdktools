@@ -27,62 +27,37 @@ var newprojname = argv[2];
 fileutils.copyFileOrDir(srcdir, destdir, function () {
     console.log('copy end.');
 
-    adtprojutils.loadProjXML(destdir, function (err, xmlobj) {
-        if (err) {
-            console.log('loadProjXML ' + destdir + ' .project err ' + err);
+    var xmlobj = adtprojutils.loadProjXML(destdir);
 
-            return ;
-        }
+    adtprojutils.chgProjName(xmlobj, newprojname);
+    adtprojutils.addLinkedResources(xmlobj, 'heysdkjava', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/src');
+    adtprojutils.addLinkedResources(xmlobj, 'heysdk-cocos2dx', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/cocos2dx');
+    adtprojutils.addLinkedResources(xmlobj, 'heysdk-kuaiwan', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/kuaiwan');
+    //adtprojutils.removeProject(xmlobj, 'libcocos2dx');
 
-        adtprojutils.chgProjName(xmlobj, newprojname);
-        adtprojutils.addLinkedResources(xmlobj, 'heysdkjava', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/src');
-        adtprojutils.addLinkedResources(xmlobj, 'heysdk-cocos2dx', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/cocos2dx');
-        adtprojutils.addLinkedResources(xmlobj, 'heysdk-kuaiwan', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/kuaiwan');
-        adtprojutils.removeProject(xmlobj, 'libcocos2dx');
+    adtprojutils.saveProjXML(destdir, xmlobj);
 
-        adtprojutils.saveProjXML(destdir, xmlobj, function (err) {
-            if (err) {
-                console.log('saveProjXML ' + destdir + ' .project err ' + err);
+    xmlobj = adtprojutils.loadClassPathXML(destdir);
+    adtprojutils.addClassPath(xmlobj, 'heysdkjava');
+    adtprojutils.addClassPath(xmlobj, 'heysdk-cocos2dx');
+    adtprojutils.addClassPath(xmlobj, 'heysdk-kuaiwan');
 
-                return ;
-            }
+    adtprojutils.saveClassPathXML(destdir, xmlobj);
 
-            adtprojutils.loadClassPathXML(destdir, function (err, xmlobj) {
-                if (err) {
-                    console.log('loadProjXML ' + destdir + ' .classpath err ' + err);
+    var mkinfo = '#<--heysdk\r\n';
+    mkinfo += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../heysdk/heysdkcpp\r\n';
+    mkinfo += 'LOCAL_WHOLE_STATIC_LIBRARIES += libheysdk_static\r\n';
+    mkinfo += '$(call import-add-path,$(LOCAL_PATH)/../../)\r\n';
+    mkinfo += '$(call import-module,heysdk/prebuild/android-cc3)\r\n';
+    mkinfo += '#-->\r\n';
 
-                    return ;
-                }
+    adtprojutils.insAndroidMK(destdir, mkinfo);
 
-                adtprojutils.addClassPath(xmlobj, 'heysdkjava');
-                adtprojutils.addClassPath(xmlobj, 'heysdk-cocos2dx');
-                adtprojutils.addClassPath(xmlobj, 'heysdk-kuaiwan');
+    cocos2dxutils.chgCocos2dxActivityEx(destdir);
 
-                adtprojutils.saveClassPathXML(destdir, xmlobj, function (err) {
-                    if (err) {
-                        console.log('saveClassPathXML ' + destdir + ' .project err ' + err);
+    var amxmlfile1 = path.join(destdir, 'AndroidManifest.xml');
+    var amxmlfile2 = path.join('../core/projjava/heysdkbase', 'AndroidManifest.xml');
+    xmlmerge.mergeWithFile(amxmlfile1, amxmlfile2, amxmlfile1, 'AndroidManifest.csv', function () {
 
-                        return ;
-                    }
-
-                    var mkinfo = '#<--heysdk\r\n';
-                    mkinfo += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../heysdk/heysdkcpp\r\n';
-                    mkinfo += 'LOCAL_WHOLE_STATIC_LIBRARIES += libheysdk_static\r\n';
-                    mkinfo += '$(call import-add-path,$(LOCAL_PATH)/../../)\r\n';
-                    mkinfo += '$(call import-module,heysdk/prebuild/android-cc3)\r\n';
-                    mkinfo += '#-->\r\n';
-
-                    adtprojutils.insAndroidMK(destdir, mkinfo);
-
-                    cocos2dxutils.chgCocos2dxActivityEx(destdir);
-
-                    var amxmlfile1 = path.join(destdir, 'AndroidManifest.xml');
-                    var amxmlfile2 = path.join('../core/projjava/heysdkbase', 'AndroidManifest.xml');
-                    xmlmerge.mergeWithFile(amxmlfile1, amxmlfile2, amxmlfile1, 'AndroidManifest.csv', function () {
-
-                    });
-                });
-            });
-        });
     });
 });
