@@ -6,6 +6,7 @@ var exec = require('../exec');
 var fileutils = require('../fileutils');
 var arrutils = require('../arrutils');
 var adtprojutils = require('../adtprojutils');
+var cocos2dxutils = require('../cocos2dxutils');
 var fs = require('fs');
 var path = require('path');
 var console = require('console');
@@ -72,6 +73,8 @@ fileutils.copyFileOrDir(srcdir, destdir, function () {
                     mkinfo += '#-->\r\n';
 
                     adtprojutils.insAndroidMK(destdir, mkinfo);
+
+                    cocos2dxutils.chgCocos2dxActivityEx(destdir);
 
                     var amxmlfile1 = path.join(destdir, 'AndroidManifest.xml');
                     var amxmlfile2 = path.join('../core/projjava/heysdkbase', 'AndroidManifest.xml');

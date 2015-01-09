@@ -5,6 +5,7 @@
 var console = require('console');
 var path = require('path');
 var fs = require('fs');
+var adtprojutils = require('./adtprojutils');
 
 // 这里的操作很简单
 // 查找到第一个 'import org.cocos2dx.lib.Cocos2dxActivity;'，改成 'import com.heysdk.lib.cocos2dx.HeyCocos2dxActivity;'
@@ -32,4 +33,18 @@ function chgCocos2dxActivity(filename) {
     }
 }
 
-exports.insAndroidMK = insAndroidMK;
+function makeFilename_MainActivity(destproj, mainactivity) {
+    var arr = mainactivity.split('.');
+    var file = arr.join('/');
+    var filename = path.join(destproj, 'src', file);
+
+    return filename;
+}
+
+function chgCocos2dxActivityEx(destproj) {
+    var mainactivity = adtprojutils.getMainActivity(destproj);
+    var filename = makeFilename_MainActivity(destproj, mainactivity);
+    chgCocos2dxActivity(filename + '.java');
+}
+
+exports.chgCocos2dxActivityEx = chgCocos2dxActivityEx;

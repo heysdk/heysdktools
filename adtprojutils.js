@@ -6,6 +6,7 @@ var console = require('console');
 var path = require('path');
 var xmlutils = require('./xmlutils');
 var ndkprojutils = require('./ndkprojutils');
+var amxmlutils = require('./amxmlutils');
 
 // callback(err, xmlobj)
 function loadProjXML(projpath, callback) {
@@ -136,6 +137,11 @@ function insAndroidMK(projpath, info) {
     ndkprojutils.insAndroidMK(filename, info);
 }
 
+function getMainActivity(projpath) {
+    var filename = path.join(projpath, 'AndroidManifest.xml');
+    return amxmlutils.getMainActivity(filename);
+}
+
 exports.loadProjXML = loadProjXML;
 exports.saveProjXML = saveProjXML;
 exports.chgProjName = chgProjName;
@@ -147,3 +153,5 @@ exports.saveClassPathXML = saveClassPathXML;
 exports.addClassPath = addClassPath;
 
 exports.insAndroidMK = insAndroidMK;
+
+exports.getMainActivity = getMainActivity;
