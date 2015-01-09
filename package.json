@@ -1,0 +1,12 @@
+{
+  "name": "heysdktools",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./samples/mergexml.js"
+  },
+  "dependencies": {
+    "xmldom": "*",
+    "pretty-data": "*"
+  }
+}
