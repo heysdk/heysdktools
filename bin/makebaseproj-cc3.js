@@ -26,11 +26,13 @@ var srcdir = projconfig[0].projpath;
 var destdir = projconfig[0].destpath;
 var newprojname = projconfig[0].projname;
 var projpkg = projconfig[0].projpkg;
+var adtworkspace = projconfig[0].adtworkspace;
 
 console.log('src proj is ' + srcdir);
 console.log('dest proj is ' + destdir);
 console.log('dest proj name is ' + newprojname);
 console.log('dest proj pkg is ' + projpkg);
+console.log('adt workspace is ' + adtworkspace);
 
 fileutils.copyFileOrDir(srcdir, destdir, function () {
     console.log('copy end.');
@@ -40,7 +42,8 @@ fileutils.copyFileOrDir(srcdir, destdir, function () {
     adtprojutils.chgProjName(xmlobj, newprojname);
     adtprojutils.addLinkedResources(xmlobj, 'heysdkjava', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/src');
     adtprojutils.addLinkedResources(xmlobj, 'heysdk-cocos2dx', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/cocos2dx');
-    adtprojutils.addLinkedResources(xmlobj, 'heysdk-kuaiwan', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/kuaiwan');
+    adtprojutils.addLinkedResources(xmlobj, 'heysdkcpp', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkcpp');
+    //adtprojutils.addLinkedResources(xmlobj, 'heysdk-kuaiwan', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/kuaiwan');
     //adtprojutils.removeProject(xmlobj, 'libcocos2dx');
 
     adtprojutils.saveProjXML(destdir, xmlobj);
@@ -48,20 +51,29 @@ fileutils.copyFileOrDir(srcdir, destdir, function () {
     xmlobj = adtprojutils.loadClassPathXML(destdir);
     adtprojutils.addClassPath(xmlobj, 'heysdkjava');
     adtprojutils.addClassPath(xmlobj, 'heysdk-cocos2dx');
-    adtprojutils.addClassPath(xmlobj, 'heysdk-kuaiwan');
+    //adtprojutils.addClassPath(xmlobj, 'heysdk-kuaiwan');
 
     adtprojutils.saveClassPathXML(destdir, xmlobj);
 
-    var mkinfo = '#<--heysdk\r\n';
-    mkinfo += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../heysdk/heysdkcpp\r\n';
-    mkinfo += 'LOCAL_WHOLE_STATIC_LIBRARIES += libheysdk_static\r\n';
-    mkinfo += '$(call import-add-path,$(LOCAL_PATH)/../../)\r\n';
-    mkinfo += '$(call import-module,heysdk/prebuild/android-cc3)\r\n';
-    mkinfo += '#-->\r\n';
+    var mkinfo1 = '#<--heysdk\r\n';
+    mkinfo1 += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../heysdk/heysdkcpp\r\n';
+    mkinfo1 += 'LOCAL_WHOLE_STATIC_LIBRARIES += libheysdk_static\r\n';
+    mkinfo1 += '#-->\r\n';
 
-    adtprojutils.insAndroidMK(destdir, mkinfo);
+    var mkinfo2 = '#<--heysdk\r\n';
+    mkinfo2 += '$(call import-add-path,$(LOCAL_PATH)/../../)\r\n';
+    mkinfo2 += '$(call import-module,heysdk/prebuild/android-cc3)\r\n';
+    mkinfo2 += '#-->\r\n';
+
+    adtprojutils.insAndroidMK(destdir, mkinfo1, mkinfo2);
+    adtprojutils.chgPkgName(destdir, projpkg);
 
     cocos2dxutils.chgCocos2dxActivityEx(destdir);
+
+    cocos2dxutils.chgCocos2dxHelloWorldCpp_cc3(destdir);
+
+    //adtprojutils.createADTProj(adtworkspace, destdir, newprojname, function () {
+    //});
 
     var amxmlfile1 = path.join(destdir, 'AndroidManifest.xml');
     var amxmlfile2 = path.join('../core/projjava/heysdkbase', 'AndroidManifest.xml');

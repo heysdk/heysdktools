@@ -4,9 +4,11 @@
 
 var console = require('console');
 var path = require('path');
+var fs = require('fs');
 var xmlutils = require('./xmlutils');
 var ndkprojutils = require('./ndkprojutils');
 var amxmlutils = require('./amxmlutils');
+var fileutils = require('./fileutils');
 
 function loadProjXML(projpath) {
     var filename = path.join(projpath, '.project');
@@ -127,9 +129,9 @@ function addClassPath(xmlobj, curpath) {
     }
 }
 
-function insAndroidMK(projpath, info) {
+function insAndroidMK(projpath, info1, info2) {
     var filename = path.join(projpath, 'jni', 'Android.mk');
-    ndkprojutils.insAndroidMK(filename, info);
+    ndkprojutils.insAndroidMK(filename, info1, info2);
 }
 
 function getMainActivity(projpath) {
@@ -137,16 +139,54 @@ function getMainActivity(projpath) {
     return amxmlutils.getMainActivity(filename);
 }
 
+function chgPkgName(projpath, pkgname) {
+    var filename = path.join(projpath, 'AndroidManifest.xml');
+    return amxmlutils.chgPkgName(filename, pkgname);
+}
+
+function createADTProj(workspace, destdir, projname, callback) {
+    var destpath = path.join(workspace, '.metadata/.plugins/org.eclipse.core.resources/.projects', projname);
+    fileutils.copyFileOrDir('adtproj', destpath, function () {
+        var beginname = path.join(destpath, '__begin.location');
+        var endname = path.join(destpath, '__end.location');
+        var destname = path.join(destpath, '.location');
+
+        var begin = fs.readFileSync(beginname);
+        var end = fs.readFileSync(endname);
+
+        fs.writeFileSync(destname, begin);
+
+        var buff = new Buffer(destdir.length + 1);
+        buff.writeUInt8(destdir.length, 0);
+        buff.write(destdir, 1);
+        fs.appendFileSync(destname, buff);
+        fs.appendFileSync(destname, end);
+
+        fileutils.delFileOrDirSync(beginname);
+        fileutils.delFileOrDirSync(endname);
+
+        callback();
+    });
+}
+
+// .project
 exports.loadProjXML = loadProjXML;
 exports.saveProjXML = saveProjXML;
 exports.chgProjName = chgProjName;
 exports.addLinkedResources = addLinkedResources;
 exports.removeProject = removeProject;
 
+// .classpath
 exports.loadClassPathXML = loadClassPathXML;
 exports.saveClassPathXML = saveClassPathXML;
 exports.addClassPath = addClassPath;
 
+// Android.mk
 exports.insAndroidMK = insAndroidMK;
 
+// AndroidManifest.xml
 exports.getMainActivity = getMainActivity;
+exports.chgPkgName = chgPkgName;
+
+// adt workspace
+exports.createADTProj = createADTProj;

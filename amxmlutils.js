@@ -36,4 +36,13 @@ function getMainActivity(filename) {
     return '';
 }
 
+function chgPkgName(filename, pkgname) {
+    var xmlobj = xmlutils.loadxmlSync(filename);
+    var root = xmlobj.documentElement;
+    if (root.nodeName == 'manifest') {
+        root.setAttribute('package', pkgname);
+    }
+}
+
 exports.getMainActivity = getMainActivity;
+exports.chgPkgName = chgPkgName;
