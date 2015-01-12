@@ -4,8 +4,8 @@
 
 var console = require('console');
 var path = require('path');
-var fileutils = require('../fileutils');
-var csv2obj = require('../csv2obj');
+var fileutils = require('heyutils').fileutils;
+var csv2obj = require('heyutils').csv2obj;
 var adtprojutils = require('../adtprojutils');
 var cocos2dxutils = require('../cocos2dxutils');
 var xmlmerge = require('../xmlmerge');
@@ -35,7 +35,7 @@ console.log('dest proj pkg is ' + projpkg);
 console.log('adt workspace is ' + adtworkspace);
 
 fileutils.copyFileOrDir(srcdir, destdir, function () {
-    console.log('copy end.');
+    console.log('copy proj end.');
 
     var xmlobj = adtprojutils.loadProjXML(destdir);
 

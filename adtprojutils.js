@@ -5,10 +5,10 @@
 var console = require('console');
 var path = require('path');
 var fs = require('fs');
-var xmlutils = require('./xmlutils');
+var xmlutils = require('heyutils').xmlutils;
 var ndkprojutils = require('./ndkprojutils');
 var amxmlutils = require('./amxmlutils');
-var fileutils = require('./fileutils');
+var fileutils = require('heyutils').fileutils;
 
 function loadProjXML(projpath) {
     var filename = path.join(projpath, '.project');
@@ -166,6 +166,12 @@ function createADTProj(workspace, destdir, projname, callback) {
         fileutils.delFileOrDirSync(endname);
 
         callback();
+    });
+}
+
+function procProj_uemng(destdir, config) {
+    fileutils.copyFileOrDir(srcdir, destdir, function () {
+        var str = fs.realpathSync('.');
     });
 }
 

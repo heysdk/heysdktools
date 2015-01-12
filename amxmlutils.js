@@ -2,7 +2,7 @@
  * Created by zhs007 on 2015/1/9.
  */
 
-var xmlutils = require('./xmlutils');
+var xmlutils = require('heyutils').xmlutils;
 
 function getMainActivity(filename) {
     var xmlobj = xmlutils.loadxmlSync(filename);

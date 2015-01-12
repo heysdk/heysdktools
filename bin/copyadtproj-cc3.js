@@ -2,9 +2,9 @@
  * Created by zhs007 on 2015/1/8.
  */
 
-var exec = require('../exec');
-var fileutils = require('../fileutils');
-var arrutils = require('../arrutils');
+var exec = require('heyutils').exec;
+var fileutils = require('heyutils').fileutils;
+var arrutils = require('heyutils').arrutils;
 var adtprojutils = require('../adtprojutils');
 var cocos2dxutils = require('../cocos2dxutils');
 var fs = require('fs');
