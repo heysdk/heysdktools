@@ -267,3 +267,5 @@ function mergeWithFile(src1, src2, dest, cfg, callback) {
 exports.merge = merge;
 exports.mergeWithFile = mergeWithFile;
 //exports.mergeAndroidManifest = mergeAndroidManifest;
+
+console.log('xmlmerge ok!');
