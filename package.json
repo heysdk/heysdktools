@@ -1,6 +1,6 @@
 {
   "name": "heysdktools",
-  "version": "0.3.7",
+  "version": "0.5.7",
   "description": "A tools for heysdk",
   "keywords": [
     "heysdk",
@@ -29,7 +29,7 @@
   },
   "main": "./heysdktools.js",
   "bin": {
-    "npm": "./bin/heysdk.js"
+    "heysdk": "./bin/heysdk.js"
   },
   "scripts": {
     "start": "node ./samples/mergexml.js"
