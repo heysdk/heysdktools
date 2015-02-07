@@ -53,3 +53,5 @@ function getHelpString(cmd) {
 
 exports.parse = parse;
 exports.getHelpString = getHelpString;
+
+console.log('load cmdparser...');

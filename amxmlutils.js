@@ -46,3 +46,5 @@ function chgPkgName(filename, pkgname) {
 
 exports.getMainActivity = getMainActivity;
 exports.chgPkgName = chgPkgName;
+
+console.log('load amxmlutils...');

@@ -5,3 +5,5 @@
 var initproj = require('./initproj');
 
 exports.initproj = initproj;
+
+console.log('load heysdktools...');

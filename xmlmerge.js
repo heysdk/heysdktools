@@ -268,4 +268,4 @@ exports.merge = merge;
 exports.mergeWithFile = mergeWithFile;
 //exports.mergeAndroidManifest = mergeAndroidManifest;
 
-console.log('xmlmerge ok!');
+console.log('load xmlmerge...');

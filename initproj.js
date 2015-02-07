@@ -75,3 +75,5 @@ function proc(projname) {
 }
 
 exports.proc = proc;
+
+console.log('load initproj...');

@@ -31,26 +31,33 @@ function chgProjName(xmlobj, newname) {
 }
 
 function findLinkedResources(xmlobj, resname) {
-    var root = xmlobj.documentElement;
-    if (root.nodeName == 'projectDescription') {
-        var linkroot = xmlutils.findChild(root, 'linkedResources');
-        if (linkroot != null) {
-            if (linkroot.hasChildNodes()) {
-
-                var nums = linkroot.childNodes.length;
-                var childs = linkroot.childNodes;
-
-                for (var i = 0; i < nums; ++i) {
-                    var curresname = xmlutils.getChildValue(childs[i], 'name');
-                    if (curresname == resname) {
-                        return true;
-                    }
-                }
-            }
-        }
+    var ele = xmlutils.findElement(xmlobj, 'projectDescription>linkedResources>link>name=' + resname);
+    if (ele != null) {
+        return true;
     }
 
     return false;
+    //
+    //var root = xmlobj.documentElement;
+    //if (root.nodeName == 'projectDescription') {
+    //    var linkroot = xmlutils.findChild(root, 'linkedResources');
+    //    if (linkroot != null) {
+    //        if (linkroot.hasChildNodes()) {
+    //
+    //            var nums = linkroot.childNodes.length;
+    //            var childs = linkroot.childNodes;
+    //
+    //            for (var i = 0; i < nums; ++i) {
+    //                var curresname = xmlutils.getChildValue(childs[i], 'name');
+    //                if (curresname == resname) {
+    //                    return true;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+    //
+    //return false;
 }
 
 function addLinkedResources(xmlobj, resname, resdir) {
@@ -69,6 +76,46 @@ function addLinkedResources(xmlobj, resname, resdir) {
             xmlutils.appendTextNode(xmlutils.appendElement(link, 'locationURI'), resdir);
         }
     }
+}
+
+function chgLinkedResources(xmlobj, resname, resdir) {
+    var ele = xmlutils.findElement(xmlobj, 'projectDescription>linkedResources>link>name=' + resname);
+    if (ele == null) {
+        addLinkedResources(xmlobj, resname, resdir);
+
+        return ;
+    }
+
+//    console.log(resname + ' ' + resdir);
+
+    var location = xmlutils.findChild(ele.parentNode, 'location');
+    if (location != null) {
+        xmlutils.removeElement(location);
+    }
+
+    var locationURI = xmlutils.findChild(ele.parentNode, 'locationURI');
+    if (locationURI != null) {
+        xmlutils.chgValue(locationURI, resdir);
+    }
+    else {
+        xmlutils.appendTextNode(xmlutils.appendElement(ele.parentNode, 'locationURI'), resdir);
+    }
+    //
+    //if (findLinkedResources(xmlobj, resname)) {
+    //    return ;
+    //}
+    //
+    //var root = xmlobj.documentElement;
+    //if (root.nodeName == 'projectDescription') {
+    //    var linkroot = xmlutils.findChild(root, 'linkedResources');
+    //    if (linkroot != null) {
+    //        var link = xmlutils.appendElement(linkroot, 'link');
+    //
+    //        xmlutils.appendTextNode(xmlutils.appendElement(link, 'name'), resname);
+    //        xmlutils.appendTextNode(xmlutils.appendElement(link, 'type'), '2');
+    //        xmlutils.appendTextNode(xmlutils.appendElement(link, 'locationURI'), resdir);
+    //    }
+    //}
 }
 
 function removeProject(xmlobj, projname) {
@@ -94,6 +141,13 @@ function saveClassPathXML(projpath, xmlobj) {
 }
 
 function findClassPath(xmlobj, curpath) {
+    var ele = xmlutils.findElement(xmlobj, 'classpath>classpathentry|path=' + curpath);
+    if (ele == null) {
+        return false;
+    }
+
+    return true;
+
     var root = xmlobj.documentElement;
     if (root.nodeName == 'classpath') {
         if (root.hasChildNodes()) {
@@ -175,11 +229,22 @@ function procProj_uemng(destdir, config) {
     });
 }
 
+function loadCProjXML(projpath) {
+    var filename = path.join(projpath, '.cproject');
+    return xmlutils.loadxmlSync(filename);
+}
+
+function saveCProjXML(projpath, xmlobj) {
+    var filename = path.join(projpath, '.cproject');
+    xmlutils.save2xmlSync(filename, xmlobj);
+}
+
 // .project
 exports.loadProjXML = loadProjXML;
 exports.saveProjXML = saveProjXML;
 exports.chgProjName = chgProjName;
 exports.addLinkedResources = addLinkedResources;
+exports.chgLinkedResources = chgLinkedResources;
 exports.removeProject = removeProject;
 
 // .classpath
@@ -196,3 +261,9 @@ exports.chgPkgName = chgPkgName;
 
 // adt workspace
 exports.createADTProj = createADTProj;
+
+// .cproject
+exports.loadProjXML = loadProjXML;
+exports.saveProjXML = saveProjXML;
+
+console.log('load adtprojutils...');

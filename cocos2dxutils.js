@@ -159,4 +159,4 @@ exports.fixCocos2dx2JNI = fixCocos2dx2JNI;
 exports.fixCocos2dx2BuildCmd = fixCocos2dx2BuildCmd;
 exports.revertCocos2dxHelloWorldCpp_cc3 = revertCocos2dxHelloWorldCpp_cc3;
 
-console.log('cocos2dxutils ok!');
+console.log('load cocos2dxutils...');

@@ -33,3 +33,5 @@ function insAndroidMK(mkfile, info1, info2) {
 }
 
 exports.insAndroidMK = insAndroidMK;
+
+console.log('load ndkprojutils...');
