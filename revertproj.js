@@ -13,6 +13,8 @@ function proc(projname) {
 
     var destdir = projconfig[0].destpath;
 
+    console.log('destdir is ' + destdir);
+
     cocos2dxutils.revertCocos2dxHelloWorldCpp_cc3(destdir);
     fileutils.delFileOrDirSync(destdir);
 }

@@ -13,6 +13,8 @@ function parse(argv) {
         else if (argv[0] == 'init') {
             if (argv.length == 2) {
                 initproj.proc(argv[1]);
+
+                return '';
             }
             else {
                 return getHelpString('init');
@@ -21,6 +23,8 @@ function parse(argv) {
         else if (argv[0] == 'revert') {
             if (argv.length == 2) {
                 revertproj.proc(argv[1]);
+
+                return '';
             }
             else {
                 return getHelpString('init');
