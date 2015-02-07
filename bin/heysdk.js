@@ -1,6 +1,4 @@
-/**
- * Created by zhs007 on 15/2/7.
- */
+#!/usr/bin/env node
 
 var console = require('console');
 
