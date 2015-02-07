@@ -3,6 +3,7 @@
  */
 
 var initproj = require('./initproj');
+var revertproj = require('./revertproj');
 
 function parse(argv) {
     if (argv.length >= 1) {
@@ -12,6 +13,14 @@ function parse(argv) {
         else if (argv[0] == 'init') {
             if (argv.length == 2) {
                 initproj.proc(argv[1]);
+            }
+            else {
+                return getHelpString('init');
+            }
+        }
+        else if (argv[0] == 'revert') {
+            if (argv.length == 2) {
+                revertproj.proc(argv[1]);
             }
             else {
                 return getHelpString('init');
@@ -31,7 +40,11 @@ function getHelpString(cmd) {
         return 'please input heysdk init proj.csv\n';
     }
 
-    return 'please input heysdk command [params]\ncommand can be init help\n';
+    if (cmd == 'revert') {
+        return 'please input heysdk revert proj.csv\n';
+    }
+
+    return 'please input heysdk command [params]\ncommand can be init revert help\n';
 }
 
 exports.parse = parse;
