@@ -1,2 +1,2 @@
 projpkg,projname,projpath,destpath,adtworkspace,channelid,dataeye-appid,talkingdata-appid,umeng-appid,kuaiwan-appid,uc-appid
-com.heysdk.democc3,heysdkdemo_cc3_heysdk,E:\work\heysdk\trunk\gameengine\cocos2d-x-3.3rc0\projects\heysdkdemo_cc3\proj.android.old,E:\work\heysdk\trunk\gameengine\cocos2d-x-3.3rc0\projects\heysdkdemo_cc3\proj.android.heysdk,C:\Users\zhs007\workspace-adt,1,,,,,
+org.cocos2dx.cpp,newprojcc3_heysdk,/Users/zhs007/work/heysdk/gameengine/newprojcc3/proj.android,/Users/zhs007/work/heysdk/gameengine/newprojcc3/proj.android.heysdk,,1,,,,,
