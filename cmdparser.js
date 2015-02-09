@@ -41,11 +41,11 @@ function getHelpString(cmd) {
     }
 
     if (cmd == 'init') {
-        return 'please input heysdk init proj.csv\n';
+        return 'please input heysdk init proj.json\n';
     }
 
     if (cmd == 'revert') {
-        return 'please input heysdk revert proj.csv\n';
+        return 'please input heysdk revert proj.json\n';
     }
 
     return 'please input heysdk command [params]\ncommand can be init revert help\n';
