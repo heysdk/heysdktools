@@ -4,6 +4,7 @@
 
 var initproj = require('./initproj');
 var revertproj = require('./revertproj');
+var clearadtproj = require('./clearadtproj');
 
 function parse(argv) {
     if (argv.length >= 1) {
@@ -11,43 +12,20 @@ function parse(argv) {
             return getHelpString('help');
         }
         else if (argv[0] == 'init') {
-            if (argv.length == 2) {
-                initproj.proc(argv[1]);
-
-                return '';
-            }
-            else {
-                return getHelpString('init');
-            }
+            return initproj.proc(argv);
         }
         else if (argv[0] == 'revert') {
-            if (argv.length == 2) {
-                revertproj.proc(argv[1]);
-
-                return '';
-            }
-            else {
-                return getHelpString('init');
-            }
+            return revertproj.proc(argv);
+        }
+        else if (argv[0] == 'clearadtproj') {
+            return clearadtproj.proc(argv);
         }
     }
 
     return getHelpString('help');
 }
 
-function getHelpString(cmd) {
-    if (cmd == undefined) {
-        cmd = 'help';
-    }
-
-    if (cmd == 'init') {
-        return 'please input heysdk init proj.json\n';
-    }
-
-    if (cmd == 'revert') {
-        return 'please input heysdk revert proj.json\n';
-    }
-
+function getHelpString() {
     return 'please input heysdk command [params]\ncommand can be init revert help\n';
 }
 

@@ -9,7 +9,11 @@ var csv2obj = require('heyutils').csv2obj;
 var cocos2dxutils = require('./cocos2dxutils');
 var fs = require('fs');
 
-function proc(projname) {
+function proc(argv) {
+    if (argv.length != 2) {
+        return 'please input heysdk init proj.json\n';
+    }
+    var projname = argv[1];
     var data = fs.readFileSync(projname);
     var projconfig = JSON.parse(data.toString());
 
