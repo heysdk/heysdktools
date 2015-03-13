@@ -8,6 +8,8 @@ var fs = require('fs');
 var adtprojutils = require('./adtprojutils');
 var fileutils = require('heyutils').fileutils;
 var strutils = require('heyutils').strutils;
+var sdkmgr = require('./sdkmgr');
+var xcodeutils = require('./xcodeutils');
 
 // 这里的操作很简单
 // 查找到第一个 'import org.cocos2dx.lib.Cocos2dxActivity;'，改成 'import com.heysdk.lib.cocos2dx.HeyCocos2dxActivity;'
@@ -42,23 +44,25 @@ function chgCocos2dxHelloWorldHpp(filename) {
     var src1 = 'public cocos2d::Layer';
     var src2 = '#include';
     var str = fs.readFileSync(filename).toString();
-    var bi = str.indexOf(src1);
-    if (bi >= 0) {
-        var output = str.slice(0, bi);
-        output += 'public HeyLayer';
-        output += str.slice(bi + src1.length, str.length);
-
-        str = output;
-
-        bi = str.indexOf(src2);
+    if (str.indexOf('"cc3/HeyLayer.h"') < 0) {
+        var bi = str.indexOf(src1);
         if (bi >= 0) {
-            output = str.slice(0, bi);
-            output += '#include "cc3/HeyLayer.h"';
-            output += '\r\n';
-            output += str.slice(bi, str.length);
-        }
+            var output = str.slice(0, bi);
+            output += 'public HeyLayer';
+            output += str.slice(bi + src1.length, str.length);
 
-        fs.writeFileSync(filename, output);
+            str = output;
+
+            bi = str.indexOf(src2);
+            if (bi >= 0) {
+                output = str.slice(0, bi);
+                output += '#include "cc3/HeyLayer.h"';
+                output += '\r\n';
+                output += str.slice(bi, str.length);
+            }
+
+            fs.writeFileSync(filename, output);
+        }
     }
 }
 
@@ -88,6 +92,76 @@ function chgCocos2dxHelloWorldCpp(filename) {
     }
 }
 
+// 这里的操作很简单
+// 查找到第一个 'public cocos2d::Application'，改成 'public HeyApplication'
+// 查找到第一个 '#include'，在前面加一行 '#include "cc3/HeyApplication.h"'
+function chgCocos2dxAppDelegateHpp(filename) {
+    var src1 = 'private cocos2d::Application';
+    var src2 = '#include';
+    var str = fs.readFileSync(filename).toString();
+    if (str.indexOf('"cc3/HeyApplication.h"') < 0) {
+        var bi = str.indexOf(src1);
+        if (bi >= 0) {
+            var output = str.slice(0, bi);
+            output += 'public HeyApplication';
+            output += str.slice(bi + src1.length, str.length);
+
+            str = output;
+
+            bi = str.indexOf(src2);
+            if (bi >= 0) {
+                output = str.slice(0, bi);
+                output += '#include "cc3/HeyApplication.h"';
+                output += '\r\n';
+                output += str.slice(bi, str.length);
+            }
+
+            fs.writeFileSync(filename, output);
+        }
+    }
+}
+
+// 这里的操作很简单
+// 查找到第一个 'bool AppDelegate::applicationDidFinishLaunching() {'，增加 'HeyApplication::applicationDidFinishLaunching();'
+// 查找到第一个 'bool AppDelegate::applicationDidEnterBackground() {'，增加 'HeyApplication::applicationDidEnterBackground();'
+// 查找到第一个 'bool AppDelegate::applicationWillEnterForeground() {'，增加 'HeyApplication::applicationWillEnterForeground();'
+function chgCocos2dxAppDelegateCpp(filename) {
+    var src1 = 'bool AppDelegate::applicationDidFinishLaunching() {';
+    var src2 = 'bool AppDelegate::applicationDidEnterBackground() {';
+    var src3 = 'bool AppDelegate::applicationWillEnterForeground() {';
+    var str = fs.readFileSync(filename).toString();
+    if (str.indexOf('HeyApplication::applicationDidFinishLaunching()') < 0) {
+        var bi = str.indexOf(src1);
+        if (bi >= 0) {
+            var output = str.slice(0, bi + src1.length);
+            output += '\r\n    HeyApplication::applicationDidFinishLaunching();\r\n';
+            output += str.slice(bi + src1.length, str.length);
+
+            str = output;
+
+            bi = str.indexOf(src2);
+            if (bi >= 0) {
+                output = str.slice(0, bi + src2.length);
+                output += '\r\n    HeyApplication::applicationDidEnterBackground();\r\n';
+                output += str.slice(bi + src2.length, str.length);
+
+                str = output;
+            }
+
+            bi = str.indexOf(src3);
+            if (bi >= 0) {
+                output = str.slice(0, bi + src3.length);
+                output += '\r\n    HeyApplication::applicationWillEnterForeground();\r\n';
+                output += str.slice(bi + src3.length, str.length);
+
+                str = output;
+            }
+
+            fs.writeFileSync(filename, output);
+        }
+    }
+}
+
 function makeFilename_MainActivity(destproj, mainactivity) {
     var arr = mainactivity.split('.');
     var file = arr.join('/');
@@ -111,6 +185,18 @@ function chgCocos2dxHelloWorldCpp_cc3(projdir) {
     var filename1 = path.join(projdir, '../Classes/HelloWorldScene.cpp');
     fileutils.copyfile(filename1, filename1 + '.old', function () {
         chgCocos2dxHelloWorldCpp(filename1);
+    });
+}
+
+function chgCocos2dxAppDelegateCpp_cc3(projdir) {
+    var filename = path.join(projdir, '../Classes/AppDelegate.h');
+    fileutils.copyfile(filename, filename + '.old', function () {
+        chgCocos2dxAppDelegateHpp(filename);
+    });
+
+    var filename1 = path.join(projdir, '../Classes/AppDelegate.cpp');
+    fileutils.copyfile(filename1, filename1 + '.old', function () {
+        chgCocos2dxAppDelegateCpp(filename1);
     });
 }
 
@@ -153,10 +239,203 @@ function fixCocos2dx2BuildCmd(projdir) {
     fs.writeFileSync(filename, str);
 }
 
+function initproc_ios_cc3_cpp(projconfig) {
+    var srcdir = projconfig.projpath;
+    var destdir = projconfig.destprojpath;
+    var newprojname = projconfig.destprojname;
+    var projpkg = projconfig.destpkgname;
+
+    console.log('src proj is ' + srcdir);
+    console.log('src proj platform is ' + projconfig.platform);
+    console.log('dest proj is ' + destdir);
+    console.log('dest proj name is ' + newprojname);
+    console.log('dest proj pkg is ' + projpkg);
+
+    fileutils.delFileOrDirSync(destdir);
+
+    fileutils.copyFileOrDir(srcdir, destdir, function (srcpath, destpath, isok) {
+        if (srcpath != srcdir || destpath != destdir) {
+            return "copyFileOrDir() " + srcpath + " " + destpath;
+        }
+
+        console.log('copy proj end.');
+
+        var projpath = path.join(destdir, projconfig.projname + '.xcodeproj');
+        xcodeutils.clearProj(projpath);
+
+        xcodeutils.chgProjName(destdir, projconfig.projname, newprojname, function() {
+            var xcodeproj = path.join(destdir, newprojname + '.xcodeproj');
+            var proj = xcodeutils.loadSync(xcodeproj);
+
+            xcodeutils.addGroup(proj, 'HeySDK', '../heysdk/ios', '');
+            xcodeutils.addGroup(proj, 'plugins', 'plugins', 'HeySDK');
+
+            xcodeutils.addSourceFile(proj, 'HeyThirdSDKMgr.cpp', 'HeySDK');
+            xcodeutils.addHeaderFile(proj, 'HeyThirdSDK.h', 'HeySDK');
+            xcodeutils.addHeaderFile(proj, 'HeyThirdSDKMgr.h', 'HeySDK');
+
+            xcodeutils.addChildLibProj(proj, '../heysdk/build/heysdklib_cc3_cpp/heysdklib_cc3_cpp.xcodeproj',
+                [
+                    {afile: 'libheysdklibios.a', target: newprojname + ' iOS', libtarget: 'heysdklibios'},
+                    {afile: 'libheysdklibmac.a', target: newprojname + ' Mac', libtarget: 'heysdklibmac'}
+                ]);
+
+            xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/src', newprojname);
+            xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/ios', newprojname);
+            //xcodeutils.addGroup(proj, 'HeySDK', '../heysdk/heysdkcpp');
+            //xcodeutils.addSourceFile(proj, '../../Classes/HeySDK.cpp', 'HeySDK');
+            //xcodeutils.addHeaderFile(proj, '../../Classes/HeySDK.h', 'HeySDK');
+            xcodeutils.saveSync(xcodeproj, proj);
+
+            chgCocos2dxHelloWorldCpp_cc3(destdir);
+            chgCocos2dxAppDelegateCpp_cc3(destdir);
+
+            sdkmgr.proc(projconfig);
+        });
+    });
+}
+
+function initproc_android_cc3_cpp(projconfig) {
+    var srcdir = projconfig.projpath;
+    var destdir = projconfig.destprojpath;
+    var newprojname = projconfig.destprojname;
+    var projpkg = projconfig.destpkgname;
+
+    console.log('src proj is ' + srcdir);
+    console.log('src proj platform is ' + projconfig.platform);
+    console.log('dest proj is ' + destdir);
+    console.log('dest proj name is ' + newprojname);
+    console.log('dest proj pkg is ' + projpkg);
+
+    fileutils.copyFileOrDir(srcdir, destdir, function (srcpath, destpath, isok) {
+        if (srcpath != srcdir || destpath != destdir) {
+            return "copyFileOrDir() " + srcpath + " " + destpath;
+        }
+
+        console.log('copy proj end.');
+
+        var xmlobj = adtprojutils.loadProjXML(destdir);
+        adtprojutils.chgProjName(xmlobj, newprojname);
+        adtprojutils.addLinkedResources(xmlobj, 'heysdk-base', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/src');
+        adtprojutils.addLinkedResources(xmlobj, 'heysdk-cocos2dx', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkjava/plugins/cocos2dx');
+        adtprojutils.addLinkedResources(xmlobj, 'heysdkcpp', '$%7BPARENT-1-PROJECT_LOC%7D/heysdk/heysdkcpp');
+        adtprojutils.saveProjXML(destdir, xmlobj);
+
+        xmlobj = adtprojutils.loadClassPathXML(destdir);
+        adtprojutils.addClassPath(xmlobj, 'heysdk-base');
+        adtprojutils.addClassPath(xmlobj, 'heysdk-cocos2dx');
+        adtprojutils.saveClassPathXML(destdir, xmlobj);
+
+        var mkinfo1 = '#<--heysdk\r\n';
+        mkinfo1 += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../heysdk/heysdkcpp\r\n';
+        mkinfo1 += 'LOCAL_WHOLE_STATIC_LIBRARIES += libheysdkcpp_static\r\n';
+        mkinfo1 += '#-->\r\n';
+
+        var mkinfo2 = '#<--heysdk\r\n';
+        mkinfo2 += '$(call import-add-path,$(LOCAL_PATH)/../../)\r\n';
+        mkinfo2 += '$(call import-module,heysdk/build/libheysdkandroidstatic_cc3/jni/)\r\n';
+        mkinfo2 += '#-->\r\n';
+
+        adtprojutils.insAndroidMK(destdir, mkinfo1, mkinfo2);
+        adtprojutils.chgPkgName(destdir, projpkg);
+        adtprojutils.procConfig(destdir, projconfig);
+
+        chgCocos2dxActivityEx(destdir);
+
+        chgCocos2dxHelloWorldCpp_cc3(destdir);
+        chgCocos2dxAppDelegateCpp_cc3(destdir);
+
+        sdkmgr.proc(projconfig);
+    });
+}
+
+function initproc_cc3_cpp(projconfig) {
+    if (projconfig.platform == 'android') {
+        initproc_android_cc3_cpp(projconfig);
+    }
+    else if(projconfig.platform == 'ios') {
+        initproc_ios_cc3_cpp(projconfig);
+    }
+}
+
+function initotherproc_android_cc3_cpp(projconfig) {
+    var srcdir = projconfig.projpath;
+    var destdir = projconfig.destprojpath;
+    var newprojname = projconfig.destprojname;
+    var projpkg = projconfig.destpkgname;
+
+    console.log('src proj is ' + srcdir);
+    console.log('dest proj is ' + destdir);
+    console.log('dest proj name is ' + newprojname);
+    console.log('dest proj pkg is ' + projpkg);
+
+    fileutils.copyFileOrDir(srcdir, destdir, function (srcpath, destpath, isok) {
+        if (srcpath != srcdir || destpath != destdir) {
+            return "copyFileOrDir() " + srcpath + " " + destpath;
+        }
+
+        console.log('copy proj end.');
+
+        var xmlobj = adtprojutils.loadProjXML(destdir);
+        adtprojutils.chgProjName(xmlobj, newprojname);
+        adtprojutils.saveProjXML(destdir, xmlobj);
+
+        adtprojutils.chgPkgName(destdir, projpkg);
+
+        sdkmgr.proc(projconfig);
+    });
+}
+
+function initotherproc_ios_cc3_cpp(projconfig) {
+    var srcdir = projconfig.projpath;
+    var destdir = projconfig.destprojpath;
+    var newprojname = projconfig.destprojname;
+    var projpkg = projconfig.destpkgname;
+
+    console.log('src proj is ' + srcdir);
+    console.log('src proj platform is ' + projconfig.platform);
+    console.log('dest proj is ' + destdir);
+    console.log('dest proj name is ' + newprojname);
+    console.log('dest proj pkg is ' + projpkg);
+
+//    var xcodeproj = path.join(destdir, newprojname + '.xcodeproj');
+//    var proj = xcodeutils.loadSync(xcodeproj);
+
+    fileutils.delFileOrDirSync(destdir);
+
+    fileutils.copyFileOrDir(srcdir, destdir, function (srcpath, destpath, isok) {
+        if (srcpath != srcdir || destpath != destdir) {
+            return "copyFileOrDir() " + srcpath + " " + destpath;
+        }
+
+        console.log('copy proj end.');
+
+        var projpath = path.join(destdir, projconfig.projname + '.xcodeproj');
+        xcodeutils.clearProj(projpath);
+
+        xcodeutils.chgProjName(destdir, projconfig.projname, newprojname, function() {
+            sdkmgr.proc(projconfig);
+        });
+    });
+}
+
+function initotherproc_cc3_cpp(projconfig) {
+    if (projconfig.platform == 'android') {
+        initotherproc_android_cc3_cpp(projconfig);
+    }
+    else if(projconfig.platform == 'ios') {
+        initotherproc_ios_cc3_cpp(projconfig);
+    }
+}
+
 exports.chgCocos2dxActivityEx = chgCocos2dxActivityEx;
 exports.chgCocos2dxHelloWorldCpp_cc3 = chgCocos2dxHelloWorldCpp_cc3;
+exports.chgCocos2dxAppDelegateCpp_cc3 = chgCocos2dxAppDelegateCpp_cc3;
 exports.fixCocos2dx2JNI = fixCocos2dx2JNI;
 exports.fixCocos2dx2BuildCmd = fixCocos2dx2BuildCmd;
 exports.revertCocos2dxHelloWorldCpp_cc3 = revertCocos2dxHelloWorldCpp_cc3;
+
+exports.initproc_cc3_cpp = initproc_cc3_cpp;
+exports.initotherproc_cc3_cpp = initotherproc_cc3_cpp;
 
 console.log('load cocos2dxutils...');

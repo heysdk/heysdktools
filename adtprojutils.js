@@ -198,6 +198,28 @@ function chgPkgName(projpath, pkgname) {
     return amxmlutils.chgPkgName(filename, pkgname);
 }
 
+function procConfig(projpath, cfg) {
+    var filename = path.join(projpath, 'AndroidManifest.xml');
+
+    if (cfg.sdk.hasOwnProperty('heysdk')) {
+        var metalist = [];
+
+        if (cfg.sdk.heysdk.hasOwnProperty('autologin')) {
+            metalist.push({name: 'HEYSDK_AUTOLOGIN', val: cfg.sdk.heysdk.autologin});
+        }
+
+        if (cfg.sdk.heysdk.hasOwnProperty('noguest')) {
+            metalist.push({name: 'HEYSDK_NOGUEST', val: cfg.sdk.heysdk.noguest});
+        }
+
+        if (cfg.sdk.heysdk.hasOwnProperty('debugmode')) {
+            metalist.push({name: 'HEYSDK_DEBUGMODE', val: cfg.sdk.heysdk.debugmode});
+        }
+
+        amxmlutils.addMetaList(filename, metalist);
+    }
+}
+
 function createADTProj(workspace, destdir, projname, callback) {
     var destpath = path.join(workspace, '.metadata/.plugins/org.eclipse.core.resources/.projects', projname);
     fileutils.copyFileOrDir('adtproj', destpath, function () {
@@ -239,6 +261,46 @@ function saveCProjXML(projpath, xmlobj) {
     xmlutils.save2xmlSync(filename, xmlobj);
 }
 
+function addJavaSrcPath(projpath, pathname, path) {
+    var xmlobj = loadProjXML(projpath);
+    addLinkedResources(xmlobj, pathname, path);
+    saveProjXML(projpath, xmlobj);
+
+    xmlobj = loadClassPathXML(projpath);
+    addClassPath(xmlobj, pathname);
+    saveClassPathXML(projpath, xmlobj);
+}
+
+function addLibrary(projpath, libpath) {
+    var filename = path.join(projpath, './project.properties');
+    var str = fs.readFileSync(filename).toString();
+    var max = 1;
+    var substr = 'android.library.reference.';
+    var begin = -1;
+
+    do {
+        begin = str.indexOf(substr, begin + 1);
+        if (begin >= 0) {
+            begin += substr.length;
+            var end = str.indexOf('=', begin);
+            if (end < 0) {
+                break;
+            }
+
+            var cur = str.substr(begin, end - begin);
+            var nums = parseInt(cur);
+            if (nums > max) {
+                max = nums;
+            }
+        }
+    } while(begin >= 0);
+
+    max += 1;
+    str += '\r\nandroid.library.reference.' + max + '=' + libpath;
+
+    fs.writeFileSync(filename, str);
+}
+
 // .project
 exports.loadProjXML = loadProjXML;
 exports.saveProjXML = saveProjXML;
@@ -258,6 +320,7 @@ exports.insAndroidMK = insAndroidMK;
 // AndroidManifest.xml
 exports.getMainActivity = getMainActivity;
 exports.chgPkgName = chgPkgName;
+exports.procConfig = procConfig;
 
 // adt workspace
 exports.createADTProj = createADTProj;
@@ -265,5 +328,11 @@ exports.createADTProj = createADTProj;
 // .cproject
 exports.loadProjXML = loadProjXML;
 exports.saveProjXML = saveProjXML;
+
+// common
+exports.addJavaSrcPath = addJavaSrcPath;
+
+// project.properties
+exports.addLibrary = addLibrary;
 
 console.log('load adtprojutils...');

@@ -1,6 +1,6 @@
 {
   "name": "heysdktools",
-  "version": "0.5.18",
+  "version": "0.6.0",
   "description": "A tools for heysdk",
   "keywords": [
     "heysdk",
@@ -38,7 +38,8 @@
     "xmldom": "*",
     "pretty-data": "*",
     "heyutils": "*",
-    "moment": "*"
+    "moment": "*",
+    "async": "*"
   },
   "license": "MIT",
   "readmeFilename": "README.md"
