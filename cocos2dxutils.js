@@ -38,27 +38,40 @@ function chgCocos2dxActivity(filename) {
 }
 
 // 这里的操作很简单
-// 查找到第一个 'public cocos2d::Layer'，改成 'public HeyLayer'
-// 查找到第一个 '#include'，在前面加一行 '#include "cc3/HeyLayer.h"'
+// 查找到第一个 'public cocos2d::Layer'，改成 'public cocos2d::Layer, public heysdk::HeySDKListener'
+// 查找到第一个 '#include'，在前面加一行 '#include <HeySDK.h>'
+// 查找到第一个 '{'，在后面增加侦听器接口声明
 function chgCocos2dxHelloWorldHpp(filename) {
     var src1 = 'public cocos2d::Layer';
     var src2 = '#include';
+    var src3 = '{';
     var str = fs.readFileSync(filename).toString();
-    if (str.indexOf('"cc3/HeyLayer.h"') < 0) {
-        var bi = str.indexOf(src1);
-        if (bi >= 0) {
-            var output = str.slice(0, bi);
-            output += 'public HeyLayer';
-            output += str.slice(bi + src1.length, str.length);
+    if (str.indexOf('heysdk::HeySDKListener') < 0) {
+        var bi1 = str.indexOf(src1);
+        if (bi1 >= 0) {
+            var output = str.slice(0, bi1 + src1.length);
+            output += ', public heysdk::HeySDKListener';
+            output += str.slice(bi1 + src1.length, str.length);
 
             str = output;
 
-            bi = str.indexOf(src2);
+            var bi = str.indexOf(src2);
             if (bi >= 0) {
                 output = str.slice(0, bi);
-                output += '#include "cc3/HeyLayer.h"';
+                output += '#include <HeySDK.h>';
                 output += '\r\n';
                 output += str.slice(bi, str.length);
+
+                str = output;
+            }
+
+            bi = str.indexOf(src3, bi1);
+            if (bi >= 0) {
+                output = str.slice(0, bi + src3.length);
+                output += '\r\n    virtual void onLogin(heysdk::HeySDKUserInfo& ui, heysdk::HeySDKUserPlatformInfo& pui);\r\n';
+                output += '\r\n    virtual void onConfigInfo(heysdk::HeySDKPaySchemeInfo& psi, heysdk::HeySDKGameConfig& cfg);\r\n';
+                output += '\r\n    virtual const char* getName() { return "helloworldscene"; }';
+                output += str.slice(bi + src3.length, str.length);
             }
 
             fs.writeFileSync(filename, output);
@@ -67,29 +80,45 @@ function chgCocos2dxHelloWorldHpp(filename) {
 }
 
 // 这里的操作很简单
-// 查找到第一个 'Layer::init()'，改成 'HeyLayer::init()'
+// 在文件的最后，增加侦听器接口实现
 function chgCocos2dxHelloWorldCpp(filename) {
-    var src1 = 'Layer::init()';
-//    var src2 = '#include';
     var str = fs.readFileSync(filename).toString();
-    var bi = strutils.findWord(str, src1);//str.indexOf(src1);
-    if (bi >= 0) {
-        var output = str.slice(0, bi);
-        output += 'HeyLayer::init()';
-        output += str.slice(bi + src1.length, str.length);
+    var src1 = '::onLogin(heysdk::HeySDKUserInfo&';
+    if (str.indexOf(src1) < 0) {
+        str += '\r\nvoid HelloWorld::onLogin(heysdk::HeySDKUserInfo& ui, heysdk::HeySDKUserPlatformInfo& pui)';
+        str += '\r\n{';
+        str += '\r\n';
+        str += '\r\n}';
+        str += '\r\n';
+        str += '\r\nvoid HelloWorld::onConfigInfo(heysdk::HeySDKPaySchemeInfo& psi, heysdk::HeySDKGameConfig& cfg)';
+        str += '\r\n{';
+        str += '\r\n';
+        str += '\r\n}';
+        str += '\r\n';
 
-        str = output;
-
-        //bi = str.indexOf(src2);
-        //if (bi >= 0) {
-        //    output = str.slice(0, bi);
-        //    output += '#include "cc3/HeyLayer.h"';
-        //    output += '\r\n';
-        //    output += str.slice(bi, str.length);
-        //}
-
-        fs.writeFileSync(filename, output);
+        fs.writeFileSync(filename, str);
     }
+//    var src1 = 'Layer::init()';
+////    var src2 = '#include';
+//    var str = fs.readFileSync(filename).toString();
+//    var bi = strutils.findWord(str, src1);//str.indexOf(src1);
+//    if (bi >= 0) {
+//        var output = str.slice(0, bi);
+//        output += 'HeyLayer::init()';
+//        output += str.slice(bi + src1.length, str.length);
+//
+//        str = output;
+//
+//        //bi = str.indexOf(src2);
+//        //if (bi >= 0) {
+//        //    output = str.slice(0, bi);
+//        //    output += '#include "cc3/HeyLayer.h"';
+//        //    output += '\r\n';
+//        //    output += str.slice(bi, str.length);
+//        //}
+//
+//        fs.writeFileSync(filename, output);
+//    }
 }
 
 // 这里的操作很简单
@@ -99,7 +128,7 @@ function chgCocos2dxAppDelegateHpp(filename) {
     var src1 = 'private cocos2d::Application';
     var src2 = '#include';
     var str = fs.readFileSync(filename).toString();
-    if (str.indexOf('"cc3/HeyApplication.h"') < 0) {
+    if (str.indexOf('"heysdk/HeyApplication.h"') < 0) {
         var bi = str.indexOf(src1);
         if (bi >= 0) {
             var output = str.slice(0, bi);
@@ -111,7 +140,7 @@ function chgCocos2dxAppDelegateHpp(filename) {
             bi = str.indexOf(src2);
             if (bi >= 0) {
                 output = str.slice(0, bi);
-                output += '#include "cc3/HeyApplication.h"';
+                output += '#include "heysdk/HeyApplication.h"';
                 output += '\r\n';
                 output += str.slice(bi, str.length);
             }
@@ -260,37 +289,52 @@ function initproc_ios_cc3_cpp(projconfig) {
 
         console.log('copy proj end.');
 
-        var projpath = path.join(destdir, projconfig.projname + '.xcodeproj');
-        xcodeutils.clearProj(projpath);
+        var tmppath = path.join(__dirname, 'template/cocos2dxv3');
+        var classpath = path.join(destpath, '../Classes');
+        fileutils.copyFileOrDir(tmppath, classpath + '/heysdk', function (srcpath, destpath, isok) {
+            console.log('copy template end.');
 
-        xcodeutils.chgProjName(destdir, projconfig.projname, newprojname, function() {
-            var xcodeproj = path.join(destdir, newprojname + '.xcodeproj');
-            var proj = xcodeutils.loadSync(xcodeproj);
+            var projpath = path.join(destdir, projconfig.projname + '.xcodeproj');
+            xcodeutils.clearProj(projpath);
 
-            xcodeutils.addGroup(proj, 'HeySDK', '../heysdk/ios', '');
-            xcodeutils.addGroup(proj, 'plugins', 'plugins', 'HeySDK');
+            xcodeutils.chgProjName(destdir, projconfig.projname, newprojname, function() {
+                var xcodeproj = path.join(destdir, newprojname + '.xcodeproj');
+                var proj = xcodeutils.loadSync(xcodeproj);
 
-            xcodeutils.addSourceFile(proj, 'HeyThirdSDKMgr.cpp', 'HeySDK');
-            xcodeutils.addHeaderFile(proj, 'HeyThirdSDK.h', 'HeySDK');
-            xcodeutils.addHeaderFile(proj, 'HeyThirdSDKMgr.h', 'HeySDK');
+                var heysdkuuid = xcodeutils.addGroup(proj, 'heysdk', 'heysdk', 'Classes');
+                xcodeutils.addSourceFileEx(proj, 'HeyApplication.cpp', xcodeutils.getGroupWithUUID(proj, heysdkuuid));
+                xcodeutils.addHeaderFileEx(proj, 'HeyApplication.h', xcodeutils.getGroupWithUUID(proj, heysdkuuid));
+                xcodeutils.addHeaderFileEx(proj, 'HeySDKConfig.h', xcodeutils.getGroupWithUUID(proj, heysdkuuid));
 
-            xcodeutils.addChildLibProj(proj, '../heysdk/build/heysdklib_cc3_cpp/heysdklib_cc3_cpp.xcodeproj',
-                [
-                    {afile: 'libheysdklibios.a', target: newprojname + ' iOS', libtarget: 'heysdklibios'},
-                    {afile: 'libheysdklibmac.a', target: newprojname + ' Mac', libtarget: 'heysdklibmac'}
-                ]);
+                xcodeutils.addMacroDef(proj, projconfig.macro, projconfig.destprojname + ' iOS');
+                //xcodeutils.addMacroDef(proj, 'HEYSDK_PLATFORM=\\"' + projconfig.platform + '\\"', projconfig.destprojname + ' iOS');
+                //xcodeutils.addMacroDef(proj, 'HEYSDK_CHANNEL=\\"' + projconfig.channel + '\\"', projconfig.destprojname + ' iOS');
 
-            xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/src', newprojname);
-            xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/ios', newprojname);
-            //xcodeutils.addGroup(proj, 'HeySDK', '../heysdk/heysdkcpp');
-            //xcodeutils.addSourceFile(proj, '../../Classes/HeySDK.cpp', 'HeySDK');
-            //xcodeutils.addHeaderFile(proj, '../../Classes/HeySDK.h', 'HeySDK');
-            xcodeutils.saveSync(xcodeproj, proj);
+                xcodeutils.addGroup(proj, 'HeySDK', '../heysdk/ios', '');
+                xcodeutils.addGroup(proj, 'plugins', 'plugins', 'HeySDK');
 
-            chgCocos2dxHelloWorldCpp_cc3(destdir);
-            chgCocos2dxAppDelegateCpp_cc3(destdir);
+                xcodeutils.addSourceFile(proj, 'HeyThirdSDKMgr.cpp', 'HeySDK');
+                xcodeutils.addHeaderFile(proj, 'HeyThirdSDK.h', 'HeySDK');
+                xcodeutils.addHeaderFile(proj, 'HeyThirdSDKMgr.h', 'HeySDK');
 
-            sdkmgr.proc(projconfig);
+                xcodeutils.addChildLibProj(proj, '../heysdk/build/heysdklib_cc3_cpp/heysdklib_cc3_cpp.xcodeproj',
+                    [
+                        {afile: 'libheysdklibios.a', target: newprojname + ' iOS', libtarget: 'heysdklibios'},
+                        {afile: 'libheysdklibmac.a', target: newprojname + ' Mac', libtarget: 'heysdklibmac'}
+                    ]);
+
+                xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/src', newprojname);
+                xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/ios', newprojname);
+                //xcodeutils.addGroup(proj, 'HeySDK', '../heysdk/heysdkcpp');
+                //xcodeutils.addSourceFile(proj, '../../Classes/HeySDK.cpp', 'HeySDK');
+                //xcodeutils.addHeaderFile(proj, '../../Classes/HeySDK.h', 'HeySDK');
+                xcodeutils.saveSync(xcodeproj, proj);
+
+                chgCocos2dxHelloWorldCpp_cc3(destdir);
+                chgCocos2dxAppDelegateCpp_cc3(destdir);
+
+                sdkmgr.proc(projconfig);
+            });
         });
     });
 }
@@ -414,6 +458,16 @@ function initotherproc_ios_cc3_cpp(projconfig) {
         xcodeutils.clearProj(projpath);
 
         xcodeutils.chgProjName(destdir, projconfig.projname, newprojname, function() {
+            var xcodeproj = path.join(destdir, newprojname + '.xcodeproj');
+            var proj = xcodeutils.loadSync(xcodeproj);
+
+            xcodeutils.delMacroDef(proj, 'HEYSDK_IOS_HEYSDK', projconfig.destprojname + ' iOS');
+            xcodeutils.addMacroDef(proj, projconfig.macro, projconfig.destprojname + ' iOS');
+            //xcodeutils.delMacroDef(proj, 'HEYSDK_CHANNEL=\\"heysdk\\"', projconfig.destprojname + ' iOS');
+            //xcodeutils.addMacroDef(proj, 'HEYSDK_CHANNEL=\\"' + projconfig.channel + '\\"', projconfig.destprojname + ' iOS');
+
+            xcodeutils.saveSync(xcodeproj, proj);
+
             sdkmgr.proc(projconfig);
         });
     });

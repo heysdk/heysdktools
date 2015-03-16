@@ -993,7 +993,60 @@ function addMacroDef(proj, mac, targetname) {
 
                 for (var key1 in buildconfig) {
                     if (key1 == curuuid) {
-                        buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS.push(util.format('"%s"', mac));
+                        var macname = mac;
+                        var ci01 = mac.indexOf('=');
+                        if (ci01 > 0) {
+                            macname = mac.substr(0, ci01);
+                        }
+
+                        var isProc = false;
+                        for (var j = 0; j < buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS.length; ++j) {
+                            if (buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS[j].indexOf(macname) >= 0) {
+                                buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS[j] = util.format('"%s"', mac);
+                                isProc = true;
+                            }
+                        }
+
+                        if (!isProc) {
+                            buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS.push(util.format('"%s"', mac));
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function delMacroDef(proj, mac, targetname) {
+    var configlist = proj.hash.project.objects['XCConfigurationList'];
+    for (var key in configlist) {
+        if (!COMMENT_KEY.test(key)) {
+            continue;
+        }
+
+        if (configlist[key] == util.format('Build configuration list for PBXNativeTarget "%s"', targetname)) {
+            var sectionKey = key.split(COMMENT_KEY)[0];
+            var cfgarr = configlist[sectionKey].buildConfigurations;
+            for (var i = 0; i < cfgarr.length; ++i) {
+                var curuuid = cfgarr[i].value;
+                var buildconfig = proj.hash.project.objects['XCBuildConfiguration'];
+
+                for (var key1 in buildconfig) {
+                    if (key1 == curuuid) {
+                        var macname = mac;
+                        var ci01 = mac.indexOf('=');
+                        if (ci01 > 0) {
+                            macname = mac.substr(0, ci01);
+                        }
+
+                        var isProc = false;
+                        for (var j = 0; j < buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS.length; ++j) {
+                            if (buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS[j].indexOf(macname) > 0) {
+                                buildconfig[key1].buildSettings.GCC_PREPROCESSOR_DEFINITIONS.splice(j, 1);
+                            }
+                        }
 
                         break;
                     }
@@ -1137,6 +1190,7 @@ exports.add2ProjFrameworkSearchPath = add2ProjFrameworkSearchPath;
 exports.add2ProjFrameworkSearchPathEx = add2ProjFrameworkSearchPathEx;
 exports.add2ProjOtherLinkerFlags = add2ProjOtherLinkerFlags;
 exports.addMacroDef = addMacroDef;
+exports.delMacroDef = delMacroDef;
 exports.addSourceFileEx = addSourceFileEx;
 exports.addHeaderFileEx = addHeaderFileEx;
 exports.addLibraryFileEx = addLibraryFileEx;

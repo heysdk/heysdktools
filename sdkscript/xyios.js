@@ -18,7 +18,7 @@ function procIOS(projcfg, next) {
 
     var xyiosuuid = xcodeutils.addGroup(proj, 'xyios', 'xyios', 'HeySDK/plugins');
     xcodeutils.addSourceFileEx(proj, 'HeyXYIOS.mm', xcodeutils.getGroupWithUUID(proj, xyiosuuid));
-    xcodeutils.addSourceFileEx(proj, 'XYHelper.m', xcodeutils.getGroupWithUUID(proj, xyiosuuid));
+    xcodeutils.addSourceFileEx(proj, 'XYHelper.mm', xcodeutils.getGroupWithUUID(proj, xyiosuuid));
     xcodeutils.addHeaderFileEx(proj, 'HeyXYIOS.h', xcodeutils.getGroupWithUUID(proj, xyiosuuid));
     xcodeutils.addHeaderFileEx(proj, 'XYHelper.h', xcodeutils.getGroupWithUUID(proj, xyiosuuid));
     xcodeutils.addOtherFrameworkFileEx(proj, 'XYPlatform.framework', xcodeutils.getGroupWithUUID(proj, xyiosuuid), projcfg.destprojname + ' iOS');
