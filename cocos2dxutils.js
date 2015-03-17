@@ -70,6 +70,7 @@ function chgCocos2dxHelloWorldHpp(filename) {
                 output = str.slice(0, bi + src3.length);
                 output += '\r\n    virtual void onLogin(heysdk::HeySDKUserInfo& ui, heysdk::HeySDKUserPlatformInfo& pui);\r\n';
                 output += '\r\n    virtual void onConfigInfo(heysdk::HeySDKPaySchemeInfo& psi, heysdk::HeySDKGameConfig& cfg);\r\n';
+                output += '\r\n    virtual void onPayment(heysdk::HeySDKPayment& payment);\r\n';
                 output += '\r\n    virtual const char* getName() { return "helloworldscene"; }';
                 output += str.slice(bi + src3.length, str.length);
             }
@@ -91,6 +92,11 @@ function chgCocos2dxHelloWorldCpp(filename) {
         str += '\r\n}';
         str += '\r\n';
         str += '\r\nvoid HelloWorld::onConfigInfo(heysdk::HeySDKPaySchemeInfo& psi, heysdk::HeySDKGameConfig& cfg)';
+        str += '\r\n{';
+        str += '\r\n';
+        str += '\r\n}';
+        str += '\r\n';
+        str += '\r\nvoid HelloWorld::onPayment(heysdk::HeySDKPayment& payment)';
         str += '\r\n{';
         str += '\r\n';
         str += '\r\n}';
