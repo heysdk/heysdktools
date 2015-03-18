@@ -8,13 +8,21 @@
  */
 bool HeyApplication::applicationDidFinishLaunching()
 {
+    heysdk::HeySDKConfig config;
+    config.isAllowAutoLogin = (HEYSDK_ALLOW_AUTOLOGIN > 1);
+    config.isAllowDeviceIDLogin = (HEYSDK_ALLOW_DEVICEIDLOGIN > 1);
+    config.isAllowMulAccount = (HEYSDK_ALLOW_MULACCOUNT > 1);
+    heysdk::HeySDK::getSingleton()->setConfig(config);
+    
     heysdk::HeySDK::getSingleton()->init();
 
     cocos2d::Scheduler* scheduler = cocos2d::Director::getInstance()->getScheduler();
     scheduler->schedule(schedule_selector(HeyApplication::onIdle), this, 0.0f, CC_REPEAT_FOREVER, 0.0f, false);
     
     heysdk::HeySDKClient::getSingleton()->requestConfig(HEYSDK_APPID, HEYSDK_PLATFORM, HEYSDK_CHANNEL);
-    heysdk::HeySDK::getSingleton()->autologin();
+    
+    if (heysdk::HeySDK::getSingleton()->getConfig().isAllowAutoLogin)
+        heysdk::HeySDK::getSingleton()->autologin();
     
     return true;
 }
