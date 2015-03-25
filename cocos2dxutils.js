@@ -70,7 +70,7 @@ function chgCocos2dxHelloWorldHpp(filename) {
                 output = str.slice(0, bi + src3.length);
                 output += '\r\n    virtual void onLogin(heysdk::HeySDKUserInfo& ui, heysdk::HeySDKUserPlatformInfo& pui);\r\n';
                 output += '\r\n    virtual void onConfigInfo(heysdk::HeySDKPaySchemeInfo& psi, heysdk::HeySDKGameConfig& cfg);\r\n';
-                output += '\r\n    virtual void onPayment(heysdk::HeySDKPayment& payment);\r\n';
+                output += '\r\n    virtual void onPayment(bool isOK, heysdk::HeySDKPayment& payment);\r\n';
                 output += '\r\n    virtual const char* getName() { return "helloworldscene"; }';
                 output += str.slice(bi + src3.length, str.length);
             }
@@ -96,7 +96,7 @@ function chgCocos2dxHelloWorldCpp(filename) {
         str += '\r\n';
         str += '\r\n}';
         str += '\r\n';
-        str += '\r\nvoid HelloWorld::onPayment(heysdk::HeySDKPayment& payment)';
+        str += '\r\nvoid HelloWorld::onPayment(bool isOK, heysdk::HeySDKPayment& payment)';
         str += '\r\n{';
         str += '\r\n';
         str += '\r\n}';
@@ -331,6 +331,7 @@ function initproc_ios_cc3_cpp(projconfig) {
 
                 xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/src', newprojname);
                 xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../heysdk/ios', newprojname);
+                xcodeutils.add2ProjHeaderSearchPath(proj, '$(SRCROOT)/../Classes/heysdk', newprojname);
                 //xcodeutils.addGroup(proj, 'HeySDK', '../heysdk/heysdkcpp');
                 //xcodeutils.addSourceFile(proj, '../../Classes/HeySDK.cpp', 'HeySDK');
                 //xcodeutils.addHeaderFile(proj, '../../Classes/HeySDK.h', 'HeySDK');
