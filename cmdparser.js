@@ -5,6 +5,7 @@
 var initproj = require('./initproj');
 var revertproj = require('./revertproj');
 var clearadtproj = require('./clearadtproj');
+var ver = require('./ver');
 
 function parse(argv) {
     if (argv.length >= 1) {
@@ -19,6 +20,9 @@ function parse(argv) {
         }
         else if (argv[0] == 'clearadtproj') {
             return clearadtproj.proc(argv);
+        }
+        else if (argv[0] == 'ver') {
+            return ver.proc(argv);
         }
     }
 
