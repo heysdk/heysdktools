@@ -10,6 +10,7 @@ var downjoy = require('./sdkscript/downjoy');
 var gamecenter = require('./sdkscript/gamecenter');
 var appleiap = require('./sdkscript/appleiap');
 var xyios = require('./sdkscript/xyios');
+var threeku = require('./sdkscript/threeku');
 
 var sdkmgr = {
     umeng: umeng,
@@ -17,7 +18,8 @@ var sdkmgr = {
     downjoy: downjoy,
     gamecenter: gamecenter,
     appleiap: appleiap,
-    xyios: xyios
+    xyios: xyios,
+    threeku: threeku
 };
 
 function proc(projcfg) {
