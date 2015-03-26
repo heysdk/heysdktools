@@ -9,9 +9,23 @@
 bool HeyApplication::applicationDidFinishLaunching()
 {
     heysdk::HeySDKConfig config;
-    config.isAllowAutoLogin = (HEYSDK_ALLOW_AUTOLOGIN > 1);
-    config.isAllowDeviceIDLogin = (HEYSDK_ALLOW_DEVICEIDLOGIN > 1);
-    config.isAllowMulAccount = (HEYSDK_ALLOW_MULACCOUNT > 1);
+    
+    config.appid = HEYSDK_APPID;
+    config.platform = HEYSDK_PLATFORM;
+    config.channel = HEYSDK_CHANNEL;
+    
+#ifdef HEYSDK_ALLOW_AUTOLOGIN
+    config.isAllowAutoLogin = (HEYSDK_ALLOW_AUTOLOGIN > 0);
+#endif
+    
+#ifdef HEYSDK_ALLOW_DEVICEIDLOGIN
+    config.isAllowDeviceIDLogin = (HEYSDK_ALLOW_DEVICEIDLOGIN > 0);
+#endif 
+    
+#ifdef HEYSDK_ALLOW_MULACCOUNT
+    config.isAllowMulAccount = (HEYSDK_ALLOW_MULACCOUNT > 0);
+#endif 
+    
     heysdk::HeySDK::getSingleton()->setConfig(config);
     
     heysdk::HeySDK::getSingleton()->init();
