@@ -11,6 +11,8 @@ var gamecenter = require('./sdkscript/gamecenter');
 var appleiap = require('./sdkscript/appleiap');
 var xyios = require('./sdkscript/xyios');
 var threeku = require('./sdkscript/threeku');
+var dataeye = require('./sdkscript/dataeye');
+var talkingdata = require('./sdkscript/talkingdata');
 
 var sdkmgr = {
     umeng: umeng,
@@ -19,7 +21,9 @@ var sdkmgr = {
     gamecenter: gamecenter,
     appleiap: appleiap,
     xyios: xyios,
-    threeku: threeku
+    threeku: threeku,
+    dataeye: dataeye,
+    talkingdata: talkingdata
 };
 
 function proc(projcfg) {

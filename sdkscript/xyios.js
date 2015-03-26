@@ -38,7 +38,7 @@ function procIOS(projcfg, next) {
     xcodeutils.addFrameworkFileEx(proj, 'Security.framework', groupFrameworks, projcfg.destprojname + ' iOS');
     xcodeutils.addFrameworkFileEx(proj, 'MobileCoreServices.framework', groupFrameworks, projcfg.destprojname + ' iOS');
     xcodeutils.addFrameworkFileEx(proj, 'Libsqlite3.dylib', groupFrameworks, projcfg.destprojname + ' iOS');
-    xcodeutils.addFrameworkFileEx(proj, 'Libsqlite3.dylib', groupFrameworks, projcfg.destprojname + ' iOS');
+    //xcodeutils.addFrameworkFileEx(proj, 'Libsqlite3.dylib', groupFrameworks, projcfg.destprojname + ' iOS');
     xcodeutils.addFrameworkFileEx(proj, 'MediaPlayer.framework', groupFrameworks, projcfg.destprojname + ' iOS');
     xcodeutils.addFrameworkFileEx(proj, 'GameController.framework', groupFrameworks, projcfg.destprojname + ' iOS');
 

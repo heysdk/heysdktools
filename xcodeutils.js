@@ -201,13 +201,21 @@ function addLibraryFileEx(proj, filename, objGroup) {
     addFile2GroupEx(proj, pbxfile, objGroup);
 }
 
-function addFrameworkFileEx(proj, filename, objGroup, target) {
+function addFrameworkFileEx(proj, filename, objGroup, target, isOptional) {
+    if (isOptional == undefined) {
+        isOptional = false;
+    }
+
     if (hasPbxFileReferenceSection(proj, filename)) {
         return ;
     }
 
     var uuid = proj.generateUuid();
-    var pbxfile = addLibrary(proj, filename, uuid, target);
+    var param = undefined;
+    if (isOptional) {
+        param = {settings: {ATTRIBUTES: ['Weak']}};
+    }
+    var pbxfile = addLibrary(proj, filename, uuid, target, param);
     //var pbxfile = new xcode.pbxFile(filename);
     pbxfile.fileRef = uuid;
     proj.addToPbxFileReferenceSection(pbxfile);    // PBXFileReference
@@ -501,13 +509,18 @@ function hasContainerItemProxy(proj, basename, proxyType, remoteInfo) {
     return false;
 }
 
-function addLibrary(proj, afile, fileRef, target) {
+function addLibrary(proj, afile, fileRef, target, param) {
     var pbxfile = new xcode.pbxFile(afile);
     procPbxFile(pbxfile);
     pbxfile.fileRef = fileRef;
     delete pbxfile.fileEncoding;
 
     pbxfile.uuid = proj.generateUuid();
+    if (param != undefined) {
+        for (var pkey in param) {
+            pbxfile[pkey] = param[pkey];
+        }
+    }
     proj.addToPbxBuildFileSection(pbxfile);        // PBXBuildFile
 
     var nativetarget = proj.hash.project.objects['PBXNativeTarget'];
